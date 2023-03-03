@@ -193,7 +193,6 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     return radiance_out + ray_sample.emissive +
            (cos_theta / (ray_sample.pdf * throughput_probability)) * trace_ray(new_scene_ray) *
                ray_sample.attenuation;
-    ;
 }
 
 } // namespace PT

@@ -175,8 +175,8 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     Spectrum throughput =
         Spectrum(ray.throughput * ray_sample.attenuation * cos_theta * 1.f / ray_sample.pdf);
 
-    float throughput_probability = (throughput.luma() < 0.3f)? 0.5f : 1.f;
-    if(RNG::unit() < throughput_probability ){
+    float throughput_probability = 1 - throughput.luma();
+    if(RNG::unit() < throughput_probability) {
         return radiance_out + ray_sample.emissive;
     }
 

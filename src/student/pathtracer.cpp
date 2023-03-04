@@ -163,7 +163,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // (2) Randomly select a new ray direction (it may be reflection or transmittance
     // ray depending on surface type) using bsdf.sample()
     BSDF_Sample ray_sample = bsdf.sample(hit.normal);
-
+    Vec3 world_dir = object_to_world.rotate(ray_sample.direction).unit();
     // (3) Compute the throughput of the recursive ray. This should be the current ray's
     // throughput scaled by the BSDF attenuation, cos(theta), and BSDF sample PDF.
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
@@ -171,11 +171,11 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
 
     // cos is expressed as dot (u,v) / (len(u)*len(v)). Since len of direction and normal are both
     // 1, cos is just the dot product
-    float cos_theta = abs(dot(ray_sample.direction.unit(), hit.normal));
+    float cos_theta = dot(ray_sample.direction.unit(), hit.normal);
     Spectrum throughput =
-        Spectrum(ray.throughput * ray_sample.attenuation * cos_theta * 1.f / ray_sample.pdf);
+        Spectrum(ray.throughput * ray_sample.attenuation * -cos_theta * 1.f / ray_sample.pdf);
 
-    float throughput_probability = 1 - throughput.luma();
+    float throughput_probability = 1.f - throughput.luma();
     if(RNG::unit() < throughput_probability) {
         return radiance_out + ray_sample.emissive;
     }
@@ -183,7 +183,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // (4) Create new scene-space ray and cast it to get incoming light. As with shadow rays,
     // you should modify time_bounds so that the ray does not intersect at time = 0. Remember to
     // set the new throughput and depth values.
-    Ray new_scene_ray(hit.origin, ray_sample.direction.unit());
+    Ray new_scene_ray(hit.origin, world_dir);
     new_scene_ray.throughput = throughput;
     new_scene_ray.depth = ray.depth + 1;
     new_scene_ray.dist_bounds = Vec2(EPS_F, ray.dist_bounds.y - EPS_F);

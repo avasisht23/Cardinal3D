@@ -38,7 +38,7 @@ Vec3 Hemisphere::Cosine::sample(float& pdf) const {
     float y = std::sin(rand_phi) * std::sin(rand_theta) ;
     float z = std::cos(rand_phi);
 
-    pdf = std::cos(rand_theta) / PI_F;
+    pdf = std::cos(rand_theta) / 2* PI_F;
 
     return Vec3(x, y, z);
 }

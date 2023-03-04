@@ -171,12 +171,12 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
 
     // cos is expressed as dot (u,v) / (len(u)*len(v)). Since len of direction and normal are both
     // 1, cos is just the dot product
-    float cos_theta = dot(ray_sample.direction.unit(), hit.normal);
+    float cos_theta = abs(dot(ray_sample.direction.unit(), hit.normal));
     Spectrum throughput =
         Spectrum(ray.throughput * ray_sample.attenuation * cos_theta * 1.f / ray_sample.pdf);
 
-    float throughput_probability = 1 - throughput.luma();
-    if(RNG::unit() < throughput_probability) {
+    float throughput_probability = (throughput.luma() < 0.3f)? 0.5f : 1.f;
+    if(RNG::unit() < throughput_probability ){
         return radiance_out + ray_sample.emissive;
     }
 
